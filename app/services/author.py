@@ -1,7 +1,9 @@
+from sqlalchemy import select
+from sqlalchemy.orm import joinedload
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlmodel import select
 
 from models.author import Author
+from models.book import Book
 from schemas.author import AuthorCreate, AuthorUpdate
 from exceptions import EntityNotFoundException
 
@@ -45,3 +47,12 @@ class AuthorService:
         await self.session.delete(author)
         await self.session.commit()
         return True
+
+    async def get_books_by_author(self, author_id: int) -> list[Book]:
+        result = await self.session.execute(
+            select(Book)
+            .where(Book.author_id == author_id)
+            .options(joinedload(Book.author))
+        )
+
+        return result.scalars().all()

@@ -1,3 +1,5 @@
+from typing import Optional
+
 from pydantic import BaseModel
 
 
@@ -10,9 +12,9 @@ class AuthorRead(AuthorCreate):
     id: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class AuthorUpdate(BaseModel):
-    name: str | None
-    bio: str | None
+    name: Optional[str] = None
+    bio: Optional[str] = None

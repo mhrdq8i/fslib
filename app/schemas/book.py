@@ -1,5 +1,6 @@
-from pydantic import BaseModel
+from typing import Optional
 
+from pydantic import BaseModel
 from schemas.author import AuthorRead
 
 
@@ -17,5 +18,5 @@ class BookRead(BookCreate):
 
 
 class BookUpdate(BaseModel):
-    title: str | None
-    author_id: int | None
+    title: Optional[str] = None
+    author_id: Optional[int] = None

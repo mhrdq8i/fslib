@@ -3,7 +3,7 @@ from sqlalchemy.orm import joinedload
 from sqlalchemy import select
 
 from models.book import Book
-from schemas.book import BookCreate
+from schemas.book import BookCreate, BookUpdate
 from exceptions import EntityNotFoundException
 
 
@@ -36,11 +36,25 @@ class BookService:
         )
         return result.scalars().all()
 
-    async def get_books_by_author(self, author_id: int) -> list[Book]:
-        result = await self.session.execute(
-            select(Book)
-            .where(Book.author_id == author_id)
-            .options(joinedload(Book.author))
-        )
+    async def update_book(
+        self,
+        book_id: int,
+        update: BookUpdate
+    ) -> Book:
+        book = await self.get_book(book_id)
+        update_data = update.model_dump(exclude_unset=True)
 
-        return result.scalars().all()
+        for key, value in update_data.items():
+            setattr(book, key, value)
+
+        await self.session.commit()
+        await self.session.refresh(book)
+
+        return book
+
+    async def delete_book(self, book_id: int) -> bool:
+        book = await self.get_book(book_id)
+        await self.session.delete(book)
+        await self.session.commit()
+
+        return True

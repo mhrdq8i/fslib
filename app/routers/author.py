@@ -2,10 +2,22 @@ from fastapi import APIRouter, Depends
 
 from services.author import AuthorService
 from schemas.author import AuthorCreate, AuthorRead, AuthorUpdate
+from schemas.book import BookRead
 from dependencies import get_author_service
 
 
-router = APIRouter(prefix="/authors", tags=["Authors"])
+router = APIRouter(prefix="/authors", tags=["authors"])
+
+
+@router.get(
+    "/",
+    response_model=list[AuthorRead]
+)
+async def get_all_authors_route(
+    *,
+    service: AuthorService = Depends(get_author_service)
+):
+    return await service.get_all_authors()
 
 
 @router.post(
@@ -18,17 +30,6 @@ async def create_author_route(
     author_in: AuthorCreate
 ):
     return await service.create_author(author_in)
-
-
-@router.get(
-    "/",
-    response_model=list[AuthorRead]
-)
-async def get_all_authors_route(
-    *,
-    service: AuthorService = Depends(get_author_service)
-):
-    return await service.get_all_authors()
 
 
 @router.get(
@@ -67,3 +68,15 @@ async def delete_author_route(
 ):
     await service.delete_author(author_id)
     return {"status": "success"}
+
+
+@router.get(
+    "/{author_id}/books",
+    response_model=list[BookRead]
+)
+async def get_books_by_author_route(
+    *,
+    service: AuthorService = Depends(get_author_service),
+    author_id: int
+):
+    return await service.get_books_by_author(author_id)
