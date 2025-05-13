@@ -1,58 +1,47 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import select
 
-from exceptions import EntityNotFoundException
 from models.author import Author
 from schemas.author import AuthorCreate, AuthorUpdate
+from exceptions import EntityNotFoundException
 
 
-async def create_author(session: AsyncSession, author: AuthorCreate) -> Author:
-    db_author = Author(**author.model_dump())
-    session.add(db_author)
-    await session.commit()
-    await session.refresh(db_author)
+class AuthorService:
+    def __init__(self, session: AsyncSession):
+        self.session = session
 
-    return db_author
+    async def create_author(self, author: AuthorCreate) -> Author:
+        db_author = Author(**author.model_dump())
+        self.session.add(db_author)
+        await self.session.commit()
+        await self.session.refresh(db_author)
+        return db_author
 
+    async def get_author(self, author_id: int) -> Author:
+        author = await self.session.get(Author, author_id)
+        if not author:
+            raise EntityNotFoundException("Author", author_id)
+        return author
 
-async def get_author_by_id(session: AsyncSession, author_id: int) -> Author:
-    author = await session.get(Author, author_id)
-    if not author:
-        raise EntityNotFoundException("Author", author_id)
+    async def get_all_authors(self) -> list[Author]:
+        result = await self.session.execute(select(Author))
+        return result.scalars().all()
 
-    return author
+    async def update_author(
+        self,
+            author_id: int,
+            update: AuthorUpdate
+    ) -> Author:
+        author = await self.get_author(author_id)
+        update_data = update.model_dump(exclude_unset=True)
+        for key, value in update_data.items():
+            setattr(author, key, value)
+        await self.session.commit()
+        await self.session.refresh(author)
+        return author
 
-
-async def get_authors(session: AsyncSession) -> list[Author]:
-    result = await session.execute(select(Author))
-
-    return result.scalars().all()
-
-
-async def update_author(
-    session: AsyncSession,
-    author_id: int,
-    author_update: AuthorUpdate
-) -> Author:
-
-    author = await session.get(Author, author_id)
-    if not author:
-        raise ValueError("Author not found")
-
-    update_data = author_update.model_dump(exclude_unset=True)
-    for key, value in update_data.items():
-        setattr(author, key, value)
-
-    await session.commit()
-    await session.refresh(author)
-
-    return author
-
-
-async def delete_author(session: AsyncSession, author_id: int) -> bool:
-    author = await session.get(Author, author_id)
-    if author:
-        await session.delete(author)
-        await session.commit()
+    async def delete_author(self, author_id: int) -> bool:
+        author = await self.get_author(author_id)
+        await self.session.delete(author)
+        await self.session.commit()
         return True
-    return False

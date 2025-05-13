@@ -1,70 +1,55 @@
-# routers/book.py
-from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.ext.asyncio import AsyncSession
-from typing import List, Annotated
+from fastapi import APIRouter, Depends
 
-from schemas.book import BookCreate, BookRead, BookUpdate
-from services.book import (
-    create_book, get_books, update_book, delete_book, get_book_by_id
-)
-from core.database import get_session
+from services.book import BookService
+from dependencies import get_book_service
+from schemas.book import BookCreate, BookRead
 
 
 router = APIRouter(prefix="/books", tags=["books"])
 
 
-@router.post("/", response_model=BookRead)
+@router.post(
+    "/",
+    response_model=BookRead
+)
 async def create_book_route(
     *,
-    session: AsyncSession = Depends(get_session),
+    service: BookService = Depends(get_book_service),
     book_in: BookCreate
 ):
-    return await create_book(session, book_in)
+    return await service.create_book(book_in)
 
 
-@router.get("/", response_model=Annotated[List[BookRead], ...])
-async def get_books_route(
+@router.get(
+    "/",
+    response_model=list[BookRead]
+)
+async def get_all_books_route(
     *,
-    session: AsyncSession = Depends(get_session)
+    service: BookService = Depends(get_book_service)
 ):
-    books = await get_books(session)
-
-    # Force relationship loading while session is active
-    for book in books:
-        await session.refresh(book, attribute_names=["author"])
-
-    return books
+    return await service.get_all_books()
 
 
-@router.get("/{book_id}", response_model=BookRead)
+@router.get(
+    "/{book_id}",
+    response_model=BookRead
+)
 async def get_book_route(
     *,
-    session: AsyncSession = Depends(get_session),
+    service: BookService = Depends(get_book_service),
     book_id: int
 ):
-    return await get_book_by_id(session, book_id)
+    return await service.get_book(book_id)
 
 
-@router.put("/{book_id}", response_model=BookRead)
-async def update_book_route(
+@router.get(
+    "/author/{author_id}",
+    response_model=list[BookRead]
+)
+async def get_books_by_author_route(
     *,
-    session: AsyncSession = Depends(get_session),
-    book_id: int,
-    book_in: BookUpdate
+    service: BookService = Depends(get_book_service),
+    author_id: int
 ):
-    book = await update_book(session, book_id, book_in)
-    if not book:
-        raise HTTPException(status_code=404, detail="Book not found")
-    return book
-
-
-@router.delete("/{book_id}", response_model=dict)
-async def delete_book_route(
-    *,
-    session: AsyncSession = Depends(get_session),
-    book_id: int
-):
-    success = await delete_book(session, book_id)
-    if not success:
-        raise HTTPException(status_code=404, detail="Book not found")
-    return {"status": "success"}
+    return await service.get_books_by_author(author_id)

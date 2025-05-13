@@ -1,78 +1,46 @@
-# services/book.py
-from sqlmodel import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
+from sqlalchemy import select
 
-from exceptions import EntityNotFoundException
 from models.book import Book
-from schemas.book import BookCreate, BookUpdate
+from schemas.book import BookCreate
+from exceptions import EntityNotFoundException
 
 
-async def create_book(session: AsyncSession, book: BookCreate) -> Book:
-    db_book = Book(**book.model_dump())
-    session.add(db_book)
-    await session.commit()
-    await session.refresh(db_book)
+class BookService:
+    def __init__(self, session: AsyncSession):
+        self.session = session
 
-    return db_book
+    async def create_book(self, book: BookCreate) -> Book:
+        db_book = Book(**book.model_dump())
+        self.session.add(db_book)
+        await self.session.commit()
+        await self.session.refresh(db_book)
 
+        return db_book
 
-async def get_book_by_id(
-    session: AsyncSession,
-    book_id: int
-) -> Book:
-    book = await session.get(Book, book_id)
-    if not book:
-        raise EntityNotFoundException("Book", book_id)
-    # Ensure author loaded
-    await session.refresh(book, attribute_names=["author"])
-    return book
+    async def get_book(self, book_id: int) -> Book:
+        book = await self.session.get(Book, book_id)
+        if not book:
+            raise EntityNotFoundException("Book", book_id)
+        await self.session.refresh(
+            book,
+            attribute_names=["author"]
+        )
 
+        return book
 
-async def get_books_by_author(
-    session: AsyncSession,
-    author_id: int
-) -> list[Book]:
-    result = await session.execute(
-        select(Book)
-        .where(Book.author_id == author_id)
-        .options(joinedload(Book.author))  # Eager load author if needed
-    )
-    return result.scalars().all()
+    async def get_all_books(self) -> list[Book]:
+        result = await self.session.execute(
+            select(Book).options(joinedload(Book.author))
+        )
+        return result.scalars().all()
 
+    async def get_books_by_author(self, author_id: int) -> list[Book]:
+        result = await self.session.execute(
+            select(Book)
+            .where(Book.author_id == author_id)
+            .options(joinedload(Book.author))
+        )
 
-async def get_books(session: AsyncSession) -> list[Book]:
-    result = await session.execute(
-        select(Book).options(joinedload(Book.author))
-    )
-
-    return result.scalars().all()
-
-
-async def update_book(
-    session: AsyncSession,
-    book_id: int,
-    book_update: BookUpdate
-) -> Book:
-
-    book = await session.get(Book, book_id)
-    if not book:
-        raise ValueError("Book not found")
-
-    update_data = book_update.model_dump(exclude_unset=True)
-    for key, value in update_data.items():
-        setattr(book, key, value)
-
-    await session.commit()
-    await session.refresh(book)
-
-    return book
-
-
-async def delete_book(session: AsyncSession, book_id: int) -> bool:
-    book = await session.get(Book, book_id)
-    if book:
-        await session.delete(book)
-        await session.commit()
-        return True
-    return False
+        return result.scalars().all()

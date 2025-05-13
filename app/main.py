@@ -1,12 +1,10 @@
-# main.py
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from sqlmodel import SQLModel
 
 from core.database import engine
-from routers.author import router as author_router
-from routers.book import router as book_router
+from routers import author, book
 
 
 @asynccontextmanager
@@ -15,9 +13,16 @@ async def lifespan(app: FastAPI):
         await conn.run_sync(SQLModel.metadata.create_all)
     yield
 
-app = FastAPI(title="minimal_async", lifespan=lifespan)
-app.include_router(author_router)
-app.include_router(book_router)
+
+app = FastAPI(title="fslib", lifespan=lifespan)
+app.include_router(router=author.router)
+app.include_router(router=book.router)
+
+
+@app.get("/")
+async def root():
+    return {"message": "Async Library Service"}
+
 
 if __name__ == "__main__":
     import uvicorn
