@@ -9,7 +9,8 @@ from schemas.book import BookRead
 from services.book import get_books_by_author
 from schemas.author import AuthorCreate, AuthorRead, AuthorUpdate
 from services.author import (
-    create_author, get_authors, update_author, delete_author
+    create_author, get_authors, update_author,
+    delete_author, get_author_by_id
 )
 
 router = APIRouter(prefix="/authors", tags=["authors"])
@@ -30,6 +31,15 @@ async def get_authors_route(
     session: AsyncSession = Depends(get_session)
 ):
     return await get_authors(session)
+
+
+@router.get("/{author_id}", response_model=AuthorRead)
+async def get_author_route(
+    *,
+    session: AsyncSession = Depends(get_session),
+    author_id: int
+):
+    return await get_author_by_id(session, author_id)
 
 
 @router.put("/{author_id}", response_model=AuthorRead)

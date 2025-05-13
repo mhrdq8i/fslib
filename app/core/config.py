@@ -6,7 +6,7 @@ class Settings(BaseSettings):
     DATABASE_URL: str
 
     class Config:
-        env_file = ".env"
+        env_file = "app/core/.env"
         extra = "ignore"
 
 
