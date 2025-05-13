@@ -16,3 +16,11 @@ class DatabaseIntegrityException(HTTPException):
             status_code=status.HTTP_409_CONFLICT,
             detail=message
         )
+
+
+class AuthorHasBooksException(HTTPException):
+    def __init__(self, author_id: int):
+        super().__init__(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=f"Author with ID {author_id} cannot be deleted - has associated books"
+        )

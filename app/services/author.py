@@ -5,7 +5,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from models.author import Author
 from models.book import Book
 from schemas.author import AuthorCreate, AuthorUpdate
-from exceptions import EntityNotFoundException
+from exceptions import (
+    EntityNotFoundException,
+    AuthorHasBooksException
+)
 
 
 class AuthorService:
@@ -44,8 +47,19 @@ class AuthorService:
 
     async def delete_author(self, author_id: int) -> bool:
         author = await self.get_author(author_id)
+
+        # Check for associated books
+        result = await self.session.execute(
+            select(Book).where(
+                Book.author_id == author_id
+            )
+        )
+        if result.scalars().first():
+            raise AuthorHasBooksException(author_id)
+
         await self.session.delete(author)
         await self.session.commit()
+
         return True
 
     async def get_books_by_author(self, author_id: int) -> list[Book]:
