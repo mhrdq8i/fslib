@@ -3,6 +3,7 @@ from sqlmodel import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
+from exceptions import EntityNotFoundException
 from models.book import Book
 from schemas.book import BookCreate, BookUpdate
 
@@ -14,6 +15,30 @@ async def create_book(session: AsyncSession, book: BookCreate) -> Book:
     await session.refresh(db_book)
 
     return db_book
+
+
+async def get_book_by_id(
+    session: AsyncSession,
+    book_id: int
+) -> Book:
+    book = await session.get(Book, book_id)
+    if not book:
+        raise EntityNotFoundException("Book", book_id)
+    # Ensure author loaded
+    await session.refresh(book, attribute_names=["author"])
+    return book
+
+
+async def get_books_by_author(
+    session: AsyncSession,
+    author_id: int
+) -> list[Book]:
+    result = await session.execute(
+        select(Book)
+        .where(Book.author_id == author_id)
+        .options(joinedload(Book.author))  # Eager load author if needed
+    )
+    return result.scalars().all()
 
 
 async def get_books(session: AsyncSession) -> list[Book]:

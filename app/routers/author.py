@@ -5,6 +5,8 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.database import get_session
+from schemas.book import BookRead
+from services.book import get_books_by_author
 from schemas.author import AuthorCreate, AuthorRead, AuthorUpdate
 from services.author import (
     create_author, get_authors, update_author, delete_author
@@ -41,6 +43,15 @@ async def update_author_route(
     if not author:
         raise HTTPException(status_code=404, detail="Author not found")
     return author
+
+
+@router.get("/{author_id}/books", response_model=list[BookRead])
+async def get_author_books_route(
+    *,
+    session: AsyncSession = Depends(get_session),
+    author_id: int
+):
+    return await get_books_by_author(session, author_id)
 
 
 @router.delete("/{author_id}", response_model=dict)

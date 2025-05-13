@@ -5,7 +5,7 @@ from typing import List, Annotated
 
 from schemas.book import BookCreate, BookRead, BookUpdate
 from services.book import (
-    create_book, get_books, update_book, delete_book
+    create_book, get_books, update_book, delete_book, get_book_by_id
 )
 from core.database import get_session
 
@@ -34,6 +34,15 @@ async def get_books_route(
         await session.refresh(book, attribute_names=["author"])
 
     return books
+
+
+@router.get("/{book_id}", response_model=BookRead)
+async def get_book_route(
+    *,
+    session: AsyncSession = Depends(get_session),
+    book_id: int
+):
+    return await get_book_by_id(session, book_id)
 
 
 @router.put("/{book_id}", response_model=BookRead)

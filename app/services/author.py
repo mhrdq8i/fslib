@@ -1,7 +1,7 @@
-# services/author.py
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import select
 
+from exceptions import EntityNotFoundException
 from models.author import Author
 from schemas.author import AuthorCreate, AuthorUpdate
 
@@ -13,6 +13,14 @@ async def create_author(session: AsyncSession, author: AuthorCreate) -> Author:
     await session.refresh(db_author)
 
     return db_author
+
+
+async def get_author_by_id(session: AsyncSession, author_id: int) -> Author:
+    author = await session.get(Author, author_id)
+    if not author:
+        raise EntityNotFoundException("Author", author_id)
+
+    return author
 
 
 async def get_authors(session: AsyncSession) -> list[Author]:
