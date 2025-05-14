@@ -3,10 +3,12 @@ from fastapi import APIRouter, Depends
 from services.author import AuthorService
 from schemas.author import AuthorCreate, AuthorRead, AuthorUpdate
 from schemas.book import BookRead
-from dependencies import get_author_service
+from dependencies import get_author_service, oauth2_scheme
 
-
-router = APIRouter(prefix="/authors", tags=["authors"])
+router = APIRouter(
+    prefix="/authors",
+    tags=["authors"]
+)
 
 
 @router.get(
