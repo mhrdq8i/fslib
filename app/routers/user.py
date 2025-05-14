@@ -1,6 +1,6 @@
 from fastapi import Depends, APIRouter
 
-from app.schemas.user import User
+from schemas.user import User
 from dependencies import get_current_user
 
 router = APIRouter(
@@ -9,7 +9,7 @@ router = APIRouter(
 )
 
 
-@router.get("/users/me")
+@router.get("/me")
 async def read_users_me(
     current_user: User = Depends(get_current_user)
 ):
