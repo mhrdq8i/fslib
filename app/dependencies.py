@@ -6,7 +6,7 @@ from core.database import get_session
 from services.author import AuthorService
 from services.book import BookService
 
-from models.user import User
+from app.schemas.user import User
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl='token')
 
