@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends
 from services.author import AuthorService
 from schemas.author import AuthorCreate, AuthorRead, AuthorUpdate
 from schemas.book import BookRead
-from dependencies import get_author_service, oauth2_scheme
+from app.dependencies.db_session import get_author_service, oauth2_scheme
 
 router = APIRouter(
     prefix="/authors",

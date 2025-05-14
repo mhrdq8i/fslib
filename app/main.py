@@ -5,8 +5,8 @@ from fastapi import FastAPI, Depends
 from sqlmodel import SQLModel
 
 from core.database import engine
-from dependencies import oauth2_scheme
-from routers import author, book, user
+from app.dependencies.db_session import oauth2_scheme
+from routers import author, book
 
 
 @asynccontextmanager
@@ -20,7 +20,6 @@ app = FastAPI(title="fslib", lifespan=lifespan)
 
 app.include_router(router=author.router)
 app.include_router(router=book.router)
-app.include_router(router=user.router)
 
 
 @app.get("/")
