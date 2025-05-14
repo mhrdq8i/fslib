@@ -1,8 +1,11 @@
 from pydantic import BaseModel
 
 
-class User(BaseModel):
+class UserInDB(BaseModel):
     username: str
-    email: str | None = None
-    full_name: str | None = None
-    disabled: bool | None = None
+    password: str
+
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
