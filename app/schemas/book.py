@@ -1,22 +1,21 @@
+from pydantic import BaseModel
 from typing import Optional
 
-from pydantic import BaseModel
-from schemas.author import AuthorRead
 
-
-class BookCreate(BaseModel):
+class BookBase(BaseModel):
     title: str
     author_id: int
 
 
-class BookRead(BookCreate):
+class BookCreate(BookBase):
+    pass
+
+
+class AuthorRef(BaseModel):
     id: int
-    author: "AuthorRead"
-
-    class Config:
-        from_attributes = True
+    name: str
 
 
-class BookUpdate(BaseModel):
-    title: Optional[str] = None
-    author_id: Optional[int] = None
+class BookRead(BookBase):
+    id: int
+    author: Optional[AuthorRef] = None

@@ -1,49 +1,22 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
 
-from core.database import get_session
 from models.user import User
-from schemas.user import UserCreate, UserRead, Token
-from services.auth import (
-    authenticate_user,
-    create_access_token,
-    get_password_hash
+from schemas.user import UserCreate, Token
+from services.auth import authenticate_user, create_access_token
+from services.user import create_user
+from dependencies.auth import get_db, get_current_active_superuser
+
+router = APIRouter(
+    tags=["auth"]
 )
-
-router = APIRouter(prefix="/auth", tags=["auth"])
-
-
-@router.post("/register", response_model=UserRead)
-async def register_user(
-    user: UserCreate,
-    session: AsyncSession = Depends(get_session)
-):
-    result = await session.execute(
-        select(User).where(User.username == user.username)
-    )
-    if result.scalars().first():
-        raise HTTPException(
-            status_code=400,
-            detail="Username already taken"
-        )
-    hashed = get_password_hash(user.password)
-    db_user = User(
-        username=user.username,
-        hashed_password=hashed
-    )
-    session.add(db_user)
-    await session.commit()
-    await session.refresh(db_user)
-
-    return db_user
 
 
 @router.post("/token", response_model=Token)
 async def login(
     form_data: OAuth2PasswordRequestForm = Depends(),
-    session: AsyncSession = Depends(get_session)
+    session: AsyncSession = Depends(get_db)
 ):
     user = await authenticate_user(
         session,
@@ -52,14 +25,18 @@ async def login(
     )
     if not user:
         raise HTTPException(
-            status_code=400,
-            detail="Invalid username or password"
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Bearer"},
         )
-    access_token = create_access_token(
-        data={"sub": user.username}
-    )
+    access_token = create_access_token(data={"sub": user.username})
+    return {"access_token": access_token}
 
-    return {
-        "access_token": access_token,
-        "token_type": "bearer"
-    }
+
+@router.post("/users", response_model=UserCreate)
+async def create_new_user(
+    user_in: UserCreate,
+    session: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_active_superuser)
+):
+    return await create_user(session, user_in)

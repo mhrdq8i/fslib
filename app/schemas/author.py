@@ -1,20 +1,20 @@
-from typing import Optional
-
 from pydantic import BaseModel
+from typing import List
 
 
-class AuthorCreate(BaseModel):
+class AuthorBase(BaseModel):
     name: str
-    bio: str
 
 
-class AuthorRead(AuthorCreate):
+class AuthorCreate(AuthorBase):
+    pass
+
+
+class BookRef(BaseModel):
     id: int
-
-    class Config:
-        from_attributes = True
+    title: str
 
 
-class AuthorUpdate(BaseModel):
-    name: Optional[str] = None
-    bio: Optional[str] = None
+class AuthorRead(AuthorBase):
+    id: int
+    books: List[BookRef] = []

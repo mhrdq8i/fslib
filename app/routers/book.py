@@ -1,63 +1,35 @@
 from fastapi import APIRouter, Depends
 
+from models.user import User
 from services.book import BookService
-from dependencies.db_session import get_book_service
-from schemas.book import BookCreate, BookRead, BookUpdate
+from schemas.book import BookCreate, BookRead
+from dependencies.auth import get_current_user
 
-
-router = APIRouter(prefix="/books", tags=["books"])
-
-
-@router.post(
-    "/",
-    response_model=BookRead
+router = APIRouter(
+    prefix="/books",
+    tags=["books"]
 )
-async def create_book_route(
-    *,
-    service: BookService = Depends(get_book_service),
-    book_in: BookCreate
+
+
+@router.get("/books", response_model=list[BookRead])
+async def list_books(
+    book_service: BookService = Depends(BookService.get_book())
 ):
-    return await service.create_book(book_in)
+    return await book_service.list_books()
 
 
-@router.get(
-    "/",
-    response_model=list[BookRead]
-)
-async def get_all_books_route(
-    *,
-    service: BookService = Depends(get_book_service)
-):
-    return await service.get_all_books()
-
-
-@router.get(
-    "/{book_id}",
-    response_model=BookRead
-)
-async def get_book_route(
-    *,
-    service: BookService = Depends(get_book_service),
-    book_id: int
-):
-    return await service.get_book(book_id)
-
-
-@router.put("/{book_id}", response_model=BookRead)
-async def update_book_route(
-    *,
-    service: BookService = Depends(get_book_service),
+@router.get("/books/{book_id}", response_model=BookRead)
+async def get_book(
     book_id: int,
-    book_in: BookUpdate
+    book_service: BookService = Depends(BookService.get_book())
 ):
-    return await service.update_book(book_id, book_in)
+    return await book_service.get_book(book_id)
 
 
-@router.delete("/{book_id}", response_model=dict)
-async def delete_book_route(
-    *,
-    service: BookService = Depends(get_book_service),
-    book_id: int
+@router.post("/books", response_model=BookRead)
+async def create_new_book(
+    book_in: BookCreate,
+    book_service: BookService = Depends(BookService.get_book()),
+    current_user: User = Depends(get_current_user)
 ):
-    await service.delete_book(book_id)
-    return {"status": "success"}
+    return await book_service.create_book(book_in)
