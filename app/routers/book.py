@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 
 from services.book import BookService
-from app.dependencies.db_session import get_book_service
+from dependencies.db_session import get_book_service
 from schemas.book import BookCreate, BookRead, BookUpdate
 
 

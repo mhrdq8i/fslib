@@ -5,7 +5,7 @@ from fastapi import FastAPI, Depends
 from sqlmodel import SQLModel
 
 from core.database import engine
-from app.dependencies.db_session import oauth2_scheme
+from dependencies.db_session import oauth2_scheme
 from routers import author, book
 
 

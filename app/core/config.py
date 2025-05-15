@@ -3,20 +3,15 @@ from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
     DATABASE_URL: str
+    SECRET_KEY: str
+    ALGORITHM: str
+    ACCESS_TOKEN_EXPIRE_MINUTES: int
+    SUPER_ADMIN_USERNAME: str
+    SUPER_ADMIN_PASSWORD: str
 
     class Config:
-        env_file = "app/core/.env"
+        env_file = ".env"
         extra = "allow"
-
-# from pydantic import Field
-# from pydantic_settings import SettingsConfigDict
-# class Settings(BaseSettings):
-#     database_url: str = Field(..., env="DATABASE_URL")
-
-#     model_config = SettingsConfigDict(
-#         env_file="app/core/.env",
-#         extra="ignore"
-#     )
 
 
 settings = Settings()
