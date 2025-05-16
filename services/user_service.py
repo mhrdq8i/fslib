@@ -59,3 +59,15 @@ class UserService:
         result = await self.session.exec(select(User))
 
         return result.all()
+
+    async def get_user_by_id(self, user_id: int):
+        result = await self.session.get(User, user_id)
+        return result
+
+    async def delete_user(self, user_id: int):
+        user = await self.get_user_by_id(user_id)
+        if not user:
+            return False
+        await self.session.delete(user)
+        await self.session.commit()
+        return True

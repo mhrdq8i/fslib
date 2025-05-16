@@ -1,14 +1,17 @@
 
 from typing import List
 
-from fastapi import Depends, APIRouter, status
+from fastapi import Depends, APIRouter, status, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from schemas import Token, UserRead, UserCreate
 from services.user_service import UserService
 from database import get_session
-from dependencies import create_access_token, get_current_user
+from dependencies import (
+    create_access_token,
+    get_current_active_superuser
+)
 
 
 router = APIRouter(
@@ -52,10 +55,11 @@ async def login_for_access_token(
     "/",
     response_model=List[UserRead],
     status_code=status.HTTP_200_OK,
-    dependencies=[Depends(get_session)],
+    dependencies=[Depends(get_current_active_superuser)],
 )
 async def list_users(
     session: AsyncSession = Depends(get_session),
+
 ):
     """
     Return all registered users.
@@ -64,3 +68,35 @@ async def list_users(
     users = await UserService(session).get_all_users()
 
     return users
+
+
+@router.get(
+    "/{user_id}",
+    response_model=UserRead,
+    dependencies=[Depends(get_current_active_superuser)],
+)
+async def get_user_by_id(
+    user_id: int,
+    session: AsyncSession = Depends(get_session),
+):
+    user = await UserService(session).get_user_by_id(user_id)
+
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return user
+
+
+@router.delete(
+    "/{user_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    dependencies=[Depends(get_current_active_superuser)],
+)
+async def delete_user(
+    user_id: int,
+    session: AsyncSession = Depends(get_session),
+):
+    success = await UserService(session).delete_user(user_id)
+
+    if not success:
+        raise HTTPException(status_code=404, detail="User not found")
+    return None

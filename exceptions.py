@@ -30,3 +30,15 @@ class BadRequestError(HTTPException):
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=detail
         )
+
+
+class NotSuperuserError(Exception):
+    pass
+
+
+class AuthenticationError(Exception):
+    pass
+
+
+class NotFoundError(Exception):
+    pass

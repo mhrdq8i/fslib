@@ -5,7 +5,8 @@ from fastapi import Depends, APIRouter
 from fastapi.security import OAuth2PasswordBearer
 
 from config import settings
-from exceptions import credentials_exception
+from exceptions import credentials_exception, NotSuperuserError
+from schemas import UserRead
 
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
@@ -31,6 +32,14 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
         raise credentials_exception
 
     return {"username": username}
+
+
+def get_current_active_superuser(
+        current_user: UserRead = Depends(get_current_user)
+):
+    if not current_user.is_superuser:
+        raise NotSuperuserError()
+    return current_user
 
 
 def create_access_token(

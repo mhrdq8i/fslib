@@ -8,6 +8,7 @@ from services.author_service import AuthorService
 from dependencies import get_current_user
 from database import get_session
 
+
 router = APIRouter(
     prefix="/authors",
     tags=["authors"],
