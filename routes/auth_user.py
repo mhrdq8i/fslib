@@ -1,15 +1,37 @@
 
-from fastapi import Depends, APIRouter
+from typing import List
+
+from fastapi import Depends, APIRouter, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from schemas import Token
+from schemas import Token, UserRead, UserCreate
 from services.user_service import UserService
 from database import get_session
-from dependencies import create_access_token
+from dependencies import create_access_token, get_current_user
 
 
-router = APIRouter()
+router = APIRouter(
+    tags=["users"],
+    prefix="/users"
+)
+
+
+@router.post(
+    "/register",
+    response_model=UserRead,
+    status_code=status.HTTP_201_CREATED,
+)
+async def register(
+    user_in: UserCreate,
+    session: AsyncSession = Depends(get_session),
+):
+    """
+    Create a new user account (sign‑up).
+    """
+    user = await UserService(session).create_user(user_in)
+
+    return user
 
 
 @router.post("/token", response_model=Token)
@@ -22,4 +44,23 @@ async def login_for_access_token(
         form_data.password
     )
     access_token = create_access_token({"sub": user.username})
+
     return {"access_token": access_token, "token_type": "bearer"}
+
+
+@router.get(
+    "/",
+    response_model=List[UserRead],
+    status_code=status.HTTP_200_OK,
+    dependencies=[Depends(get_session)],
+)
+async def list_users(
+    session: AsyncSession = Depends(get_session),
+):
+    """
+    Return all registered users.
+    Protected: requires a valid Bearer token.
+    """
+    users = await UserService(session).get_all_users()
+
+    return users

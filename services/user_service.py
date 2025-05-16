@@ -54,3 +54,8 @@ class UserService:
             raise NotFoundError("Incorrect username or password")
 
         return user
+
+    async def get_all_users(self) -> list[User]:
+        result = await self.session.exec(select(User))
+
+        return result.all()
