@@ -2,14 +2,13 @@ from contextlib import asynccontextmanager
 import uvicorn
 
 from fastapi import FastAPI
-from sqlmodel import SQLModel
 
 from routes import (
     author_routes,
     auth_user,
     password_reset
 )
-from database import engine, init_db
+from database import init_db
 
 
 @asynccontextmanager
