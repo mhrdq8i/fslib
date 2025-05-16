@@ -1,12 +1,12 @@
 from typing import List
 
 from fastapi import APIRouter, Depends, status
-# from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from schemas import AuthorCreate, AuthorRead
 from services.author_service import AuthorService
-from dependencies import get_session, get_current_user
+from dependencies import get_current_user
+from database import get_session
 
 router = APIRouter(
     prefix="/authors",

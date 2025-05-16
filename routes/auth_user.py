@@ -1,8 +1,7 @@
 
-# from sqlalchemy.ext.asyncio import AsyncSession
-from sqlmodel.ext.asyncio.session import AsyncSession
 from fastapi import Depends, APIRouter
 from fastapi.security import OAuth2PasswordRequestForm
+from sqlmodel.ext.asyncio.session import AsyncSession
 
 from schemas import Token
 from services.user_service import UserService

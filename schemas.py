@@ -1,5 +1,5 @@
+from pydantic import BaseModel, constr
 from typing import List
-from pydantic import BaseModel
 
 
 class BookRead(BaseModel):
@@ -43,3 +43,18 @@ class UserRead(BaseModel):
 
     class Config:
         orm_mode = True
+
+
+class PasswordResetRequest(BaseModel):
+    """
+    Body for requesting a password reset.
+    """
+    email: str
+
+
+class PasswordResetConfirm(BaseModel):
+    """
+    Body for confirming a reset with the token + new password.
+    """
+    token: str
+    new_password: constr(min_length=8)

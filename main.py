@@ -4,20 +4,24 @@ import uvicorn
 from fastapi import FastAPI
 from sqlmodel import SQLModel
 
-from routes import author_routes, auth_user
-from database import engine
+from routes import (
+    author_routes,
+    auth_user,
+    password_reset
+)
+from database import engine, init_db
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    async with engine.begin() as conn:
-        await conn.run_sync(SQLModel.metadata.create_all)
+    await init_db()
     yield
 
 app = FastAPI(lifespan=lifespan)
 
 app.include_router(author_routes.router)
 app.include_router(auth_user.router)
+app.include_router(password_reset.router)
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
