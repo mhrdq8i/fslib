@@ -91,14 +91,14 @@ async def get_user_by_id(
 
 
 @router.put(
-    "/users/{user_id}",
+    "/{user_id}",
     response_model=UserRead,
     dependencies=[Depends(get_current_active_superuser)]
 )
 async def update_user(
-        user_id: int,
-        data: UserUpdate,
-        session: AsyncSession = Depends(get_session)
+    user_id: int,
+    data: UserUpdate,
+    session: AsyncSession = Depends(get_session)
 ):
     user = await UserService(session).update_user(user_id, data)
 
