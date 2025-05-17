@@ -1,5 +1,34 @@
 from pydantic import BaseModel, constr
-from typing import List
+from typing import List, Optional
+
+# Users
+
+
+class UserCreate(BaseModel):
+    username: str
+    password: str
+
+
+class UserRead(BaseModel):
+    id: int
+    username: str
+
+    class Config:
+        orm_mode = True
+
+
+class UserUpdate(BaseModel):
+    username: Optional[str] = None
+    is_superuser: Optional[bool] = None
+
+# Auth tokens
+
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+
+# Authors
 
 
 class BookRead(BaseModel):
@@ -17,45 +46,22 @@ class AuthorCreate(BaseModel):
 class AuthorRead(BaseModel):
     id: int
     name: str
-    books: List[BookRead] = []
+    # books: List[BookRead] = []
 
     class Config:
         orm_mode = True
 
 
-class Token(BaseModel):
-    access_token: str
-    token_type: str = "bearer"
+class AuthorUpdate(BaseModel):
+    name: Optional[str] = None
 
-
-class TokenData(BaseModel):
-    username: str | None = None
-
-
-class UserCreate(BaseModel):
-    username: str
-    password: str
-
-
-class UserRead(BaseModel):
-    id: int
-    username: str
-    is_superuser: bool
-
-    class Config:
-        orm_mode = True
+# Password reset
 
 
 class PasswordResetRequest(BaseModel):
-    """
-    Body for requesting a password reset.
-    """
     email: str
 
 
 class PasswordResetConfirm(BaseModel):
-    """
-    Body for confirming a reset with the token + new password.
-    """
     token: str
     new_password: constr(min_length=8)

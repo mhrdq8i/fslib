@@ -5,7 +5,7 @@ from fastapi import Depends, APIRouter, status, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from schemas import Token, UserRead, UserCreate
+from schemas import Token, UserRead, UserCreate, UserUpdate
 from services.user_service import UserService
 from database import get_session
 from dependencies import (
@@ -82,7 +82,29 @@ async def get_user_by_id(
     user = await UserService(session).get_user_by_id(user_id)
 
     if not user:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(
+            status_code=404,
+            detail="User not found"
+        )
+
+    return user
+
+
+@router.put(
+    "/users/{user_id}",
+    response_model=UserRead,
+    dependencies=[Depends(get_current_active_superuser)]
+)
+async def update_user(
+        user_id: int,
+        data: UserUpdate,
+        session: AsyncSession = Depends(get_session)
+):
+    user = await UserService(session).update_user(user_id, data)
+
+    if not user:
+        raise HTTPException("User not found")
+
     return user
 
 
@@ -98,5 +120,9 @@ async def delete_user(
     success = await UserService(session).delete_user(user_id)
 
     if not success:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(
+            status_code=404,
+            detail="User not found"
+        )
+
     return None

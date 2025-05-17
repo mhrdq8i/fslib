@@ -9,7 +9,7 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 from config import settings
 from exceptions import (
     AuthenticationError,
-    NotSuperuserError
+    NotSuperUserError
 )
 from database import get_session
 from models import User
@@ -56,7 +56,7 @@ async def get_current_active_superuser(
     current_user: User = Depends(get_current_user),
 ) -> User:
     if not current_user.is_superuser:
-        raise NotSuperuserError()
+        raise NotSuperUserError()
     return current_user
 
 

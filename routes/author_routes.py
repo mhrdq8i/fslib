@@ -1,29 +1,33 @@
 from typing import List
-
 from fastapi import APIRouter, Depends, status
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from schemas import AuthorCreate, AuthorRead
-from services.author_service import AuthorService
 from dependencies import get_current_user
 from database import get_session
-
+from schemas import AuthorCreate, AuthorRead, AuthorUpdate
+from services.author_service import AuthorService
 
 router = APIRouter(
     prefix="/authors",
     tags=["authors"],
-    dependencies=[Depends(get_current_user)],  # require auth on all endpoints
+    dependencies=[Depends(get_current_user)],
 )
 
 
-@router.get("/", response_model=List[AuthorRead])
+@router.get(
+    "/",
+    response_model=List[AuthorRead]
+)
 async def list_authors(
     session: AsyncSession = Depends(get_session)
 ):
     return await AuthorService(session).get_all()
 
 
-@router.get("/{author_id}", response_model=AuthorRead)
+@router.get(
+    "/{author_id}",
+    response_model=AuthorRead
+)
 async def get_author(
     author_id: int,
     session: AsyncSession = Depends(get_session)
@@ -41,6 +45,18 @@ async def create_author(
     session: AsyncSession = Depends(get_session)
 ):
     return await AuthorService(session).create(author_in)
+
+
+@router.put(
+    "/{author_id}",
+    response_model=AuthorRead
+)
+async def update_author(
+    author_id: int,
+    author_in: AuthorUpdate,
+    session: AsyncSession = Depends(get_session)
+):
+    return await AuthorService(session).update(author_id, author_in)
 
 
 @router.delete(

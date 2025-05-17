@@ -1,13 +1,6 @@
 from fastapi import HTTPException, status
 
 
-credentials_exception = HTTPException(
-    status_code=status.HTTP_401_UNAUTHORIZED,
-    detail="Could not validate credentials",
-    headers={"WWW-Authenticate": "Bearer"},
-)
-
-
 class NotFoundError(HTTPException):
     def __init__(self, detail: str = "Resource not found"):
         super().__init__(
@@ -32,21 +25,18 @@ class BadRequestError(HTTPException):
         )
 
 
-class NotSuperuserError(HTTPException):
-    def __init__(
-        self,
-        detail: str = "Insufficient privileges"
-    ):
-        super().__init__(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail=detail,
-        )
-
-
 class AuthenticationError(HTTPException):
     def __init__(self, detail: str = "Could not validate credentials"):
         super().__init__(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail=detail,
             headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
+class NotSuperUserError(HTTPException):
+    def __init__(self, detail: str = "Insufficient privileges"):
+        super().__init__(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=detail
         )

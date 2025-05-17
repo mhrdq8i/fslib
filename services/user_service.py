@@ -5,7 +5,7 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 from sqlmodel import select
 
 from models import User
-from schemas import UserCreate
+from schemas import UserCreate, UserUpdate
 from exceptions import ConflictError, NotFoundError
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -43,7 +43,11 @@ class UserService:
 
         return user
 
-    async def authenticate(self, username: str, password: str) -> User:
+    async def authenticate(
+            self,
+            username: str,
+            password: str
+    ) -> User:
         q = await self.session.exec(
             select(User).where(
                 User.username == username
@@ -64,10 +68,32 @@ class UserService:
         result = await self.session.get(User, user_id)
         return result
 
-    async def delete_user(self, user_id: int):
+    async def update_user(
+        self,
+        user_id: int,
+        data: UserUpdate
+    ) -> User | None:
+
         user = await self.get_user_by_id(user_id)
         if not user:
+            return None
+
+        for k, v in data.model_dump(exclude_unset=True).items():
+            setattr(user, k, v)
+
+        self.session.add(user)
+        await self.session.commit()
+        await self.session.refresh(user)
+
+        return user
+
+    async def delete_user(self, user_id: int):
+        user = await self.get_user_by_id(user_id)
+
+        if not user:
             return False
+
         await self.session.delete(user)
         await self.session.commit()
+
         return True
