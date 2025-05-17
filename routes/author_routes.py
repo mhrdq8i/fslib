@@ -7,6 +7,7 @@ from database import get_session
 from schemas import AuthorCreate, AuthorRead, AuthorUpdate
 from services.author_service import AuthorService
 
+
 router = APIRouter(
     prefix="/authors",
     tags=["authors"],

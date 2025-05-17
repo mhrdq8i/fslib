@@ -1,5 +1,5 @@
 from pydantic import BaseModel, constr
-from typing import List, Optional
+from typing import Optional, List
 
 # Users
 
@@ -46,7 +46,7 @@ class AuthorCreate(BaseModel):
 class AuthorRead(BaseModel):
     id: int
     name: str
-    # books: List[BookRead] = []
+    books: List[BookRead] = []
 
     class Config:
         orm_mode = True
@@ -54,6 +54,28 @@ class AuthorRead(BaseModel):
 
 class AuthorUpdate(BaseModel):
     name: Optional[str] = None
+
+# Book
+
+
+class BookCreate(BaseModel):
+    title: str
+    author_id: int
+
+
+class BookRead(BaseModel):
+    id: int
+    title: str
+    author_id: int
+
+    class Config:
+        orm_mode = True
+
+
+class BookUpdate(BaseModel):
+    title: Optional[str] = None
+    author_id: Optional[int] = None
+
 
 # Password reset
 

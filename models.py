@@ -7,7 +7,7 @@ class Author(SQLModel, table=True):
     name: str = Field(index=True, nullable=False)
     books: List["Book"] = Relationship(
         back_populates="author",
-        sa_relationship_kwargs={"lazy": "select"}
+        sa_relationship_kwargs={"lazy": "selectin"}
     )
 
 

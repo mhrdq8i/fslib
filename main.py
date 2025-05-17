@@ -6,7 +6,8 @@ from fastapi import FastAPI
 from routes import (
     author_routes,
     auth_user,
-    password_reset
+    password_reset,
+    book_routes
 )
 from database import init_db
 
@@ -20,6 +21,7 @@ app = FastAPI(lifespan=lifespan)
 
 app.include_router(author_routes.router)
 app.include_router(auth_user.router)
+app.include_router(book_routes.router)
 app.include_router(password_reset.router)
 
 if __name__ == "__main__":
