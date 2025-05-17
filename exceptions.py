@@ -32,13 +32,21 @@ class BadRequestError(HTTPException):
         )
 
 
-class NotSuperuserError(Exception):
-    pass
+class NotSuperuserError(HTTPException):
+    def __init__(
+        self,
+        detail: str = "Insufficient privileges"
+    ):
+        super().__init__(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=detail,
+        )
 
 
-class AuthenticationError(Exception):
-    pass
-
-
-class NotFoundError(Exception):
-    pass
+class AuthenticationError(HTTPException):
+    def __init__(self, detail: str = "Could not validate credentials"):
+        super().__init__(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=detail,
+            headers={"WWW-Authenticate": "Bearer"},
+        )

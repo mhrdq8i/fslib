@@ -40,6 +40,7 @@ class UserCreate(BaseModel):
 class UserRead(BaseModel):
     id: int
     username: str
+    is_superuser: bool
 
     class Config:
         orm_mode = True
