@@ -2,9 +2,9 @@ from typing import List
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from models import Book, Author
-from schemas import BookCreate, BookUpdate
-from exceptions import NotFoundError
+from app.models import Book, Author
+from app.schemas.books import BookCreate, BookUpdate
+from app.exceptions import NotFoundError
 
 
 class BookService:

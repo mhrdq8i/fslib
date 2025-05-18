@@ -3,13 +3,13 @@ import uvicorn
 
 from fastapi import FastAPI
 
-from routes import (
+from app.routes import (
     author_routes,
     auth_user,
     password_reset,
     book_routes
 )
-from database import init_db
+from app.core.database import init_db
 
 
 @asynccontextmanager

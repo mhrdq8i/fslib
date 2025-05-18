@@ -2,10 +2,10 @@ from typing import List
 from fastapi import APIRouter, Depends, status
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from dependencies import get_current_user
-from database import get_session
-from schemas import AuthorCreate, AuthorRead, AuthorUpdate
-from services.author_service import AuthorService
+from app.core.dependencies import get_current_user
+from app.core.database import get_session
+from app.schemas.authors import AuthorCreate, AuthorRead, AuthorUpdate
+from app.services.author_service import AuthorService
 
 
 router = APIRouter(

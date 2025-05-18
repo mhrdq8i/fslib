@@ -6,13 +6,13 @@ from fastapi.security import OAuth2PasswordBearer
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from config import settings
-from exceptions import (
+from app.core.config import settings
+from app.core.database import get_session
+from app.exceptions import (
     AuthenticationError,
     NotSuperUserError
 )
-from database import get_session
-from models import User
+from app.models import User
 
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")

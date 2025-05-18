@@ -2,9 +2,9 @@ from typing import List
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from models import Author
-from schemas import AuthorCreate, AuthorUpdate
-from exceptions import NotFoundError, ConflictError
+from app.models import Author
+from app.schemas.authors import AuthorCreate, AuthorUpdate
+from app.exceptions import NotFoundError, ConflictError
 
 
 class AuthorService:

@@ -5,10 +5,11 @@ from fastapi import Depends, APIRouter, status, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from schemas import Token, UserRead, UserCreate, UserUpdate
-from services.user_service import UserService
-from database import get_session
-from dependencies import (
+from app.schemas.auth import Token
+from app.schemas.users import UserRead, UserCreate, UserUpdate
+from app.services.user_service import UserService
+from app.core.database import get_session
+from app.core.dependencies import (
     create_access_token,
     get_current_active_superuser
 )

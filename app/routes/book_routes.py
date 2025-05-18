@@ -2,11 +2,11 @@ from typing import List
 from fastapi import APIRouter, Depends, status, HTTPException
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from database import get_session
-from dependencies import get_current_user
-from schemas import BookCreate, BookRead, BookUpdate
-from services.book_service import BookService
-from exceptions import NotFoundError
+from app.core.database import get_session
+from app.core.dependencies import get_current_user
+from app.schemas.books import BookCreate, BookRead, BookUpdate
+from app.services.book_service import BookService
+from app.exceptions import NotFoundError
 
 
 router = APIRouter(

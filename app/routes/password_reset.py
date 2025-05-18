@@ -7,12 +7,12 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 from jwt import decode
 from jwt.exceptions import PyJWTError
 
-from config import settings
-from dependencies import create_access_token
-from database import get_session
-from models import User
-from schemas import PasswordResetRequest, PasswordResetConfirm
-from exceptions import BadRequestError, NotFoundError
+from app.core.config import settings
+from app.core.dependencies import create_access_token
+from app.core.database import get_session
+from app.models import User
+from app.schemas.auth import PasswordResetRequest, PasswordResetConfirm
+from app.exceptions import BadRequestError, NotFoundError
 
 
 router = APIRouter(tags=["password-reset"])

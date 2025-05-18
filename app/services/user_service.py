@@ -4,9 +4,9 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 # from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import select
 
-from models import User
-from schemas import UserCreate, UserUpdate
-from exceptions import ConflictError, NotFoundError
+from app.models import User
+from app.schemas.users import UserCreate, UserUpdate
+from app.exceptions import ConflictError, NotFoundError
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
