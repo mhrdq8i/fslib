@@ -1,12 +1,15 @@
 from typing import List
 from fastapi import APIRouter, Depends, status
+from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from app.core.dependencies import get_current_user
 from app.core.database import get_session
+from app.models import Author, Book
 from app.schemas.authors import AuthorCreate, AuthorRead, AuthorUpdate
+from app.schemas.books import BookRead
 from app.services.author_service import AuthorService
-
+from app.exceptions import NotFoundError
 
 router = APIRouter(
     prefix="/authors",
@@ -69,3 +72,16 @@ async def delete_author(
     session: AsyncSession = Depends(get_session)
 ):
     await AuthorService(session).delete(author_id)
+
+
+@router.get(
+    "/{author_id}/books",
+    response_model=List[BookRead],
+    summary="List all books for a given author",
+)
+async def list_author_books(
+    author_id: int,
+    session: AsyncSession = Depends(get_session),
+):
+    books = await AuthorService(session).get_books_by_author(author_id)
+    return books

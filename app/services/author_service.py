@@ -2,7 +2,7 @@ from typing import List
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from app.models import Author
+from app.models import Author, Book
 from app.schemas.authors import AuthorCreate, AuthorUpdate
 from app.exceptions import NotFoundError, ConflictError
 
@@ -12,7 +12,9 @@ class AuthorService:
         self.session = session
 
     async def get_all(self) -> List[Author]:
-        result = await self.session.exec(select(Author))
+        result = await self.session.exec(
+            select(Author)
+        )
 
         return result.all()
 
@@ -48,7 +50,9 @@ class AuthorService:
     ) -> Author:
 
         author = await self.get_by_id(author_id)
-        for k, v in data.model_dump(exclude_unset=True).items():
+        for k, v in data.model_dump(
+            exclude_unset=True
+        ).items():
             setattr(author, k, v)
 
         self.session.add(author)
@@ -62,3 +66,21 @@ class AuthorService:
 
         await self.session.delete(author)
         await self.session.commit()
+
+    async def get_books_by_author(
+            self,
+            author_id: int
+    ) -> List[Book]:
+        # 1️⃣ verify author exists
+        author = await self.session.get(Author, author_id)
+        if not author:
+            raise NotFoundError(f"Author {author_id} not found")
+
+        # 2️⃣ query books
+        result = await self.session.exec(
+            select(Book).where(
+                Book.author_id == author_id
+            )
+        )
+
+        return result.all()

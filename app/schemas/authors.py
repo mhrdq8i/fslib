@@ -1,5 +1,4 @@
 from pydantic import BaseModel
-from typing import List
 
 
 class BookRead(BaseModel):
@@ -17,7 +16,7 @@ class AuthorCreate(BaseModel):
 class AuthorRead(BaseModel):
     id: int
     name: str
-    books: List[BookRead] = []
+    # books: List[BookRead] = []
 
     class Config:
         orm_mode = True
